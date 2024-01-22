@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -75,6 +77,12 @@ func main() {
 		// URL do serviço web
 		url := fmt.Sprintf("%s/GenerateZipXml.ashx?dataini=%s&datafim=%s&cnpj=%s", baseURL, dataIniFormattedStr, dataFimFormattedStr, cnpj)
 
+		// Imprimir a URL
+		fmt.Println(url)
+
+		// Aguardar pressionar uma tecla antes de continuar
+		waitForKeypress()
+
 		// Fazer a requisição HTTP
 		response, err := http.Get(url)
 		if err != nil {
@@ -90,8 +98,19 @@ func main() {
 			continue
 		}
 
-		fmt.Println(url)
 		fmt.Printf("CNPJ: %s - de %s a %s : %s\n", cnpj, dataIniFormattedStr, dataFimFormattedStr, body)
 		fmt.Println()
 	}
+}
+
+// Função para aguardar pressionar uma tecla
+func waitForKeypress() {
+	fmt.Print("Pressione qualquer tecla para continuar...")
+	switch runtime.GOOS {
+	case "windows":
+		exec.Command("cmd", "/c", "pause").Run()
+	default:
+		exec.Command("sh", "-c", "read -n 1 -s -r -p \"Pressione qualquer tecla para continuar...\"").Run()
+	}
+	fmt.Println()
 }
