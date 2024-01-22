@@ -1,27 +1,20 @@
 package main
 
 import (
-	"crypto/tls"
 	"encoding/csv"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
-	"runtime"
 	"time"
 )
 
 const baseURL = "https://localhost"
 
 func main() {
-	// Flags
-	flag.Parse()
-
-	// Argumento não processado (arquivo CSV)
-	csvFile := flag.Arg(0)
+	// Argumento (arquivo CSV)
+	csvFile := os.Args[1]
 
 	// Abrir o arquivo CSV
 	file, err := os.Open(csvFile)
@@ -35,7 +28,22 @@ func main() {
 	reader := csv.NewReader(file)
 
 	// Desabilitar a verificação do certificado TLS
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	http.DefaultTransport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+
+	// Obter a data e hora atual para o nome do arquivo de log
+	currentTime := time.Now()
+	logFileName := fmt.Sprintf("log_%s.txt", currentTime.Format("20060102150405"))
+
+	// Criar ou abrir o arquivo de log
+	logFile, err := os.Create(logFileName)
+	if err != nil {
+		fmt.Printf("Erro ao criar ou abrir arquivo de log: %v\n", err)
+		os.Exit(1)
+	}
+	defer logFile.Close()
+
+	// Criar um escritor para o arquivo de log
+	logWriter := io.MultiWriter(os.Stdout, logFile)
 
 	// Loop pelos registros do CSV
 	for {
@@ -77,16 +85,14 @@ func main() {
 		// URL do serviço web
 		url := fmt.Sprintf("%s/GenerateZipXml.ashx?dataini=%s&datafim=%s&cnpj=%s", baseURL, dataIniFormattedStr, dataFimFormattedStr, cnpj)
 
-		// Imprimir a URL
-		fmt.Println(url)
-
-		// Aguardar pressionar uma tecla antes de continuar
-		waitForKeypress()
+		// Imprimir a URL no arquivo de log
+		fmt.Fprintln(logWriter, url)
 
 		// Fazer a requisição HTTP
 		response, err := http.Get(url)
 		if err != nil {
 			fmt.Printf("Erro ao fazer a requisição para CNPJ %s: %v\n", cnpj, err)
+			fmt.Fprintln(logWriter, fmt.Sprintf("Erro para CNPJ %s: %v", cnpj, err))
 			continue
 		}
 		defer response.Body.Close()
@@ -95,22 +101,12 @@ func main() {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			fmt.Printf("Erro ao ler o conteúdo da resposta para CNPJ %s: %v\n", cnpj, err)
+			fmt.Fprintln(logWriter, fmt.Sprintf("Erro ao ler resposta para CNPJ %s: %v", cnpj, err))
 			continue
 		}
 
-		fmt.Printf("CNPJ: %s - de %s a %s : %s\n", cnpj, dataIniFormattedStr, dataFimFormattedStr, body)
-		fmt.Println()
+		// Imprimir o resultado no arquivo de log
+		fmt.Fprintln(logWriter, fmt.Sprintf("CNPJ: %s - de %s a %s : %s", cnpj, dataIniFormattedStr, dataFimFormattedStr, body))
+		fmt.Fprintln(logWriter, "")
 	}
-}
-
-// Função para aguardar pressionar uma tecla
-func waitForKeypress() {
-	fmt.Print("Pressione qualquer tecla para continuar...")
-	switch runtime.GOOS {
-	case "windows":
-		exec.Command("cmd", "/c", "pause").Run()
-	default:
-		exec.Command("sh", "-c", "read -n 1 -s -r -p \"Pressione qualquer tecla para continuar...\"").Run()
-	}
-	fmt.Println()
 }
