@@ -27,6 +27,7 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 # Opções
 
 -u: Especifica a URL base para o serviço web. Padrão: https://localhost
+
 -h: Exibe a mensagem de ajuda.
 
 Exemplo de uso com URL personalizada:
