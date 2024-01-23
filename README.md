@@ -11,7 +11,7 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 1. Baixe o código-fonte do projeto:
 
    ```bash
-   git clone https://github.com/seu-usuario/GeraZip.git
+   git clone https://github.com/joaoavilars/ftl_go.git
    cd GeraZip
 ```
 2. Compile o código:
