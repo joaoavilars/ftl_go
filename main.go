@@ -12,11 +12,27 @@ import (
 	"time"
 )
 
-var baseURLFlag = flag.String("u", "https://localhost", "URL base para o serviço web")
+var (
+	baseURLFlag = flag.String("u", "https://localhost", "URL base para o serviço web")
+	helpFlag    = flag.Bool("h", false, "Mostra a mensagem de ajuda")
+)
 
 func main() {
 	// Flags
 	flag.Parse()
+
+	// Verificar se a opção de ajuda foi fornecida
+	if *helpFlag {
+		printUsage()
+		return
+	}
+
+	// Verificar se há argumentos suficientes
+	if flag.NArg() < 1 {
+		fmt.Println("Erro: Forneça o caminho do arquivo CSV como argumento.")
+		printUsage()
+		os.Exit(1)
+	}
 
 	// Argumento não processado (arquivo CSV)
 	csvFile := flag.Arg(0)
@@ -94,4 +110,11 @@ func main() {
 		fmt.Printf("CNPJ: %s - de %s a %s : %s\n", cnpj, dataIniFormattedStr, dataFimFormattedStr, body)
 		fmt.Println()
 	}
+}
+
+func printUsage() {
+	fmt.Println("Uso:")
+	fmt.Printf("  %s [-u <URL>] arquivo_csv\n", os.Args[0])
+	fmt.Println("Opções:")
+	flag.PrintDefaults()
 }
