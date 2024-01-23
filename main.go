@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,11 +12,14 @@ import (
 	"time"
 )
 
-const baseURL = "https://localhost"
+var baseURLFlag = flag.String("u", "https://localhost", "URL base para o serviço web")
 
 func main() {
-	// Argumento (arquivo CSV)
-	csvFile := os.Args[1]
+	// Flags
+	flag.Parse()
+
+	// Argumento não processado (arquivo CSV)
+	csvFile := flag.Arg(0)
 
 	// Abrir o arquivo CSV
 	file, err := os.Open(csvFile)
@@ -28,22 +33,7 @@ func main() {
 	reader := csv.NewReader(file)
 
 	// Desabilitar a verificação do certificado TLS
-	http.DefaultTransport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
-
-	// Obter a data e hora atual para o nome do arquivo de log
-	currentTime := time.Now()
-	logFileName := fmt.Sprintf("log_%s.txt", currentTime.Format("20060102150405"))
-
-	// Criar ou abrir o arquivo de log
-	logFile, err := os.Create(logFileName)
-	if err != nil {
-		fmt.Printf("Erro ao criar ou abrir arquivo de log: %v\n", err)
-		os.Exit(1)
-	}
-	defer logFile.Close()
-
-	// Criar um escritor para o arquivo de log
-	logWriter := io.MultiWriter(os.Stdout, logFile)
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	// Loop pelos registros do CSV
 	for {
@@ -82,17 +72,13 @@ func main() {
 		}
 		dataFimFormattedStr := dataFimFormatted.Format("02012006")
 
-		// URL do serviço web
-		url := fmt.Sprintf("%s/GenerateZipXml.ashx?dataini=%s&datafim=%s&cnpj=%s", baseURL, dataIniFormattedStr, dataFimFormattedStr, cnpj)
-
-		// Imprimir a URL no arquivo de log
-		fmt.Fprintln(logWriter, url)
+		// Construir a URL do serviço web
+		url := fmt.Sprintf("%s/GenerateZipXml.ashx?dataini=%s&datafim=%s&cnpj=%s", *baseURLFlag, dataIniFormattedStr, dataFimFormattedStr, cnpj)
 
 		// Fazer a requisição HTTP
 		response, err := http.Get(url)
 		if err != nil {
 			fmt.Printf("Erro ao fazer a requisição para CNPJ %s: %v\n", cnpj, err)
-			fmt.Fprintln(logWriter, fmt.Sprintf("Erro para CNPJ %s: %v", cnpj, err))
 			continue
 		}
 		defer response.Body.Close()
@@ -101,12 +87,11 @@ func main() {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			fmt.Printf("Erro ao ler o conteúdo da resposta para CNPJ %s: %v\n", cnpj, err)
-			fmt.Fprintln(logWriter, fmt.Sprintf("Erro ao ler resposta para CNPJ %s: %v", cnpj, err))
 			continue
 		}
 
-		// Imprimir o resultado no arquivo de log
-		fmt.Fprintln(logWriter, fmt.Sprintf("CNPJ: %s - de %s a %s : %s", cnpj, dataIniFormattedStr, dataFimFormattedStr, body))
-		fmt.Fprintln(logWriter, "")
+		fmt.Println(url)
+		fmt.Printf("CNPJ: %s - de %s a %s : %s\n", cnpj, dataIniFormattedStr, dataFimFormattedStr, body)
+		fmt.Println()
 	}
 }
