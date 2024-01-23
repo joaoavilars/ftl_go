@@ -1,6 +1,6 @@
-# GeraZip
+# Ftl
 
-GeraZip é uma aplicação em Go (Golang) que realiza requisições HTTP a um serviço web para gerar arquivos ZIP com base em dados fornecidos em um arquivo CSV.
+Ftl é uma aplicação em Go (Golang) que realiza requisições HTTP a um serviço web para gerar arquivos ZIP com base em dados fornecidos em um arquivo CSV.
 
 ## Pré-requisitos
 
@@ -17,11 +17,11 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 2. Compile o código:
 
 - Windows
-```GOARCH=amd64 GOOS=windows go build -o gerazip.exe```
+```GOARCH=amd64 GOOS=windows go build -o ftl.exe```
 
 3. Execute o programa, fornecendo o caminho para o arquivo CSV:
 
-```./gerazip arquivo.csv```
+```./ftl arquivo.csv```
 
 # Opções
 
@@ -29,7 +29,7 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 -h: Exibe a mensagem de ajuda.
 
 Exemplo de uso com URL personalizada:
-```./gerazip -u https://localhost:442 arquivo.csv```
+```./ftl -u https://localhost:442 arquivo.csv```
 
 # Padrão do arquivo CSV
 ```CNPJ,DATA_INICIO,DATA_FIM```
