@@ -12,8 +12,8 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 
    ```bash
    git clone https://github.com/joaoavilars/ftl_go.git
-   cd GeraZip
-```
+   cd GeraZip```
+
 2. Compile o código:
 
 - Windows
