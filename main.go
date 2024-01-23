@@ -30,6 +30,7 @@ func main() {
 	// Verificar se há argumentos suficientes
 	if flag.NArg() < 1 {
 		fmt.Println("Erro: Forneça o caminho do arquivo CSV como argumento. CSV separado por virgula e sem aspas.")
+		fmt.Println("Formato CSV: CNPJ,DATA_INICIO,DATA_FIM - as datas devem estar no layout ddmmyyyy.")
 		printUsage()
 		os.Exit(1)
 	}
