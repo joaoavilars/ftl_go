@@ -17,6 +17,7 @@ Certifique-se de ter o Go instalado no seu ambiente. Para mais informações, vi
 2. Compile o código:
 
 - Windows
+
 ```GOARCH=amd64 GOOS=windows go build -o ftl.exe```
 
 3. Execute o programa, fornecendo o caminho para o arquivo CSV:
