@@ -29,7 +29,7 @@ func main() {
 
 	// Verificar se há argumentos suficientes
 	if flag.NArg() < 1 {
-		fmt.Println("Erro: Forneça o caminho do arquivo CSV como argumento.")
+		fmt.Println("Erro: Forneça o caminho do arquivo CSV como argumento. CSV separado por virgula e sem aspas.")
 		printUsage()
 		os.Exit(1)
 	}
